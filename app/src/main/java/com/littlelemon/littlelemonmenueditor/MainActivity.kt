@@ -30,8 +30,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Right
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.littlelemon.littlelemonmenueditor.ui.theme.LittleLemonMenuEditorTheme
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class MainActivity : ComponentActivity() {
 
@@ -75,6 +80,16 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .padding(16.dp),
                             onClick = {
+                                val newMenuItem = MenuItem(
+                                    id = UUID.randomUUID().toString(),
+                                    name = dishName,
+                                    price = priceInput.toDouble()
+                                )
+                                lifecycleScope.launch {
+                                    withContext(IO) {
+                                        database.menuDao().saveMenuItem(newMenuItem)
+                                    }
+                                }
                                 dishName = ""
                                 priceInput = ""
                             }
@@ -117,7 +132,13 @@ class MainActivity : ComponentActivity() {
                                 text = "%.2f".format(menuItem.price)
                             )
                             Spacer(modifier = Modifier.width(16.dp))
-                            Button(onClick = { /*TODO*/ }) {
+                            Button(onClick = {
+                                lifecycleScope.launch {
+                                    withContext(IO) {
+                                        database.menuDao().deleteMenuItem(menuItem)
+                                    }
+                                }
+                            }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.delete_icon),
                                     contentDescription = "Delete"
