@@ -51,9 +51,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val menuItems by remember {
-                        mutableStateOf(emptyList<MenuItem>())
-                    }
+                    val menuItems by database.menuDao().getAllMenuItems().observeAsState(emptyList())
                     Column {
                         var dishName by remember { mutableStateOf("") }
                         var priceInput by remember { mutableStateOf("") }
